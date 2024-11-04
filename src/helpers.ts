@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import {
   DeviceSdk,
   type DeviceSessionId,
   type DeviceSessionState,
-} from '@ledgerhq/device-management-kit';
+} from "@ledgerhq/device-management-kit";
 
 export function useDeviceSessionState(
   sdk: DeviceSdk,
@@ -19,6 +19,6 @@ export function useDeviceSessionState(
     sdk
       .getDeviceSessionState({ sessionId: deviceSessionId })
       .subscribe(setDeviceSessionState);
-  }, [deviceSessionId]);
+  }, [deviceSessionId, sdk]);
   return deviceSessionState;
 }

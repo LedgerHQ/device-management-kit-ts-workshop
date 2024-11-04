@@ -1,19 +1,27 @@
-import { useState } from 'react';
-import { firstValueFrom } from 'rxjs';
-import './App.css';
+import { useState } from "react";
+import { firstValueFrom } from "rxjs";
+import "./App.css";
 import {
   DeviceActionStatus,
   DeviceSdkBuilder,
   DeviceStatus,
   type DeviceSessionId,
-} from '@ledgerhq/device-management-kit';
+} from "@ledgerhq/device-management-kit";
 import {
   GetAddressDAOutput,
   KeyringEthBuilder,
-} from '@ledgerhq/device-signer-kit-ethereum';
-import { SignTransactionDAOutput } from '@ledgerhq/device-signer-kit-ethereum/lib/cjs/index.js';
+} from "@ledgerhq/device-signer-kit-ethereum";
+import { SignTransactionDAOutput } from "@ledgerhq/device-signer-kit-ethereum/lib/cjs/index.js";
 import { ethers } from "ethers";
-import { useDeviceSessionState } from './helpers';
+import { useDeviceSessionState } from "./helpers";
+import { LabelizedJSON } from "./components/LabelizedJSON";
+import { LabelizedInput } from "./components/LabelizedInput";
+import { Divider } from "./components/Divider";
+import { SectionContainer } from "./components/SectionContainer";
+import { ContextModuleBuilder } from "@ledgerhq/context-module";
+
+const exampleRawTransactionHew =
+  "0xf8a90385012bcfb58082fde894dac17f958d2ee523a2206206994597c13d831ec780b844a9059cbb0000000000000000000000008c7cd921644daeb5a9a1d018d67d63d9e1ce776600000000000000000000000000000000000000000000000000000000000186a926a0326e5f620cdfc9bc62d0adaca76eb390aa10b22d8733994a97c046b5e83d96c3a03e26dd677196799f3ed222ac5134c42a82319b477f69175f4251d6334d4750c5";
 
 function App() {
   // Workshop TODO 1: initialize the SDK
@@ -22,16 +30,21 @@ function App() {
   const [deviceSessionId, setSessionId] = useState<DeviceSessionId>();
   const [connectionError, setConnectionError] = useState<unknown>();
   const [derivationPath, setDerivationPath] = useState("44'/60'/0'/0");
-  const [transaction, setTransaction] = useState("0x02f87101831863388085042d5376f6825208944675c7e5baafbffbca748158becba61ef3b0a26387f4c28a5744191880c080a056dcc0364cdc4e395879d4f647c4e5d6b6112ace65605ecbf7d329b67b2006f2a023def803117565f65f763d2c5d18281ad2ef0ab4335c45da691266b23bc5d814");
-  const [getAddressOutput, setGetAddressOutput] = useState<GetAddressDAOutput>();
+  const [rawTransactionHex, setRawTransactionHex] = useState(
+    exampleRawTransactionHew
+  );
+  const [getAddressOutput, setGetAddressOutput] =
+    useState<GetAddressDAOutput>();
   const [getAddressError, setGetAddressError] = useState<unknown>();
   const [getAddressState, setGetAddressState] = useState<unknown>();
   const [getAddressLoading, setGetAddressLoading] = useState<boolean>(false);
 
-  const [signTransactionOutput, setSignTransactionOutput] = useState<SignTransactionDAOutput>();
+  const [signTransactionOutput, setSignTransactionOutput] =
+    useState<SignTransactionDAOutput>();
   const [signTransactionError, setSignTransactionError] = useState<unknown>();
   const [signTransactionState, setSignTransactionState] = useState<unknown>();
-  const [signTransactionLoading, setSignTransactionLoading] = useState<boolean>(false);
+  const [signTransactionLoading, setSignTransactionLoading] =
+    useState<boolean>(false);
 
   const onClickDiscoverDevices = async () => {
     try {
@@ -60,11 +73,11 @@ function App() {
     if (!keyringEth || !derivationPath) return;
     setGetAddressOutput(undefined);
     setGetAddressError(undefined);
-    setGetAddressState(undefined)
+    setGetAddressState(undefined);
     setGetAddressLoading(true);
     keyringEth.getAddress(derivationPath).observable.subscribe({
       next: (getAddressDAState) => {
-        switch(getAddressDAState.status) {
+        switch (getAddressDAState.status) {
           case DeviceActionStatus.Completed:
             setGetAddressOutput(getAddressDAState.output);
             break;
@@ -76,108 +89,130 @@ function App() {
         }
         setGetAddressState(getAddressDAState);
       },
-      complete: () => setGetAddressLoading(false)
+      complete: () => setGetAddressLoading(false),
     });
   };
 
   const onClickSignTransaction = async () => {
     // Workshop TODO 6: implement the signTransaction using the Ethereum keyring
-    if (!keyringEth || !derivationPath || !transaction) return;
+    if (!keyringEth || !derivationPath || !rawTransactionHex) return;
     setSignTransactionOutput(undefined);
     setSignTransactionError(undefined);
-    setSignTransactionState(undefined)
+    setSignTransactionState(undefined);
     setSignTransactionLoading(true);
-    keyringEth.signTransaction(derivationPath, ethers.Transaction.from(transaction)).observable.subscribe({
-      next: (signTransactionDAState) => {
-        switch(signTransactionDAState.status) {
-          case DeviceActionStatus.Completed:
-            setSignTransactionOutput(signTransactionDAState.output);
-            break;
-          case DeviceActionStatus.Error:
-            setGetAddressError(signTransactionDAState.error);
-            break;
-          default:
-            break;
-        }
-        setSignTransactionState(signTransactionDAState);
-      },
-      complete: () => setSignTransactionLoading(false)
-    });
-  }
+    let transaction: ethers.Transaction;
+    try {
+      transaction = ethers.Transaction.from(rawTransactionHex);
+    } catch (e) {
+      setSignTransactionError(e);
+      setSignTransactionLoading(false);
+      return;
+    }
+    console.log("transaction", transaction);
+    keyringEth
+      .signTransaction(derivationPath, transaction, {
+        domain: "",
+      })
+      .observable.subscribe({
+        next: (signTransactionDAState) => {
+          console.log("signTransactionDAState", signTransactionDAState);
+          switch (signTransactionDAState.status) {
+            case DeviceActionStatus.Completed:
+              setSignTransactionOutput(signTransactionDAState.output);
+              break;
+            case DeviceActionStatus.Error:
+              setSignTransactionError(signTransactionDAState.error);
+              break;
+            default:
+              break;
+          }
+          setSignTransactionState(signTransactionDAState);
+        },
+        complete: () => setSignTransactionLoading(false),
+      });
+  };
 
   const deviceSessionState = useDeviceSessionState(sdk, deviceSessionId);
 
-  const buttonsDisabled = getAddressLoading || !deviceSessionId || deviceSessionState?.deviceStatus !== DeviceStatus.CONNECTED
+  const buttonsDisabled =
+    getAddressLoading ||
+    !deviceSessionId ||
+    deviceSessionState?.deviceStatus !== DeviceStatus.CONNECTED;
 
   return (
-    <div className="card" style={{width: "500px"}}>
-      <button onClick={onClickDiscoverDevices}>
-        Discover & connect a device (USB)
-      </button>
-      {connectionError ? (
-        <pre>
-          Connection error:{'\n'}
-          {JSON.stringify(connectionError, null, 2)}
-        </pre>
-      ) : deviceSessionId ? (
-        <div>
-          <p>Connected! SessionId: {deviceSessionId}</p>
-          <p>Device Session status: {deviceSessionState?.deviceStatus ?? 'loading'}</p>
-        </div>
-      ) : (
-        <p>No active session. First discover and connect via USB a Ledger device.</p>
-      )}
-      <div style={{height: 1, width: "100%", backgroundColor: "grey", margin: "20px 0px"}} />
-      <div style={{display: "flex", flexDirection: "column", rowGap: 20, alignItems: "center"}}>
-        <form>
-          <label>
-            Derivation path:{" "}
-          </label>
-          <input disabled={buttonsDisabled} value={derivationPath} onChange={(e) => setDerivationPath(e.target.value)} />
-        </form>
+    <div className="card">
+      <SectionContainer>
+        <h3>Device Management Kit: Device Connection</h3>
+        <button onClick={onClickDiscoverDevices}>
+          Discover & connect a device (USB)
+        </button>
+        {connectionError ? (
+          <LabelizedJSON label="Connection error" value={connectionError} />
+        ) : deviceSessionId ? (
+          <div>
+            <p>Connected! SessionId: {deviceSessionId}</p>
+            <p>
+              Device Session status:{" "}
+              {deviceSessionState?.deviceStatus ?? "loading"}
+            </p>
+          </div>
+        ) : (
+          <p>
+            No active session. First discover and connect via USB a Ledger
+            device.
+          </p>
+        )}
+      </SectionContainer>
+      <Divider />
+      <SectionContainer>
+        <h3>Ethereum Signer: Get Address</h3>
+        <LabelizedInput
+          label="Derivation path"
+          value={derivationPath}
+          disabled={buttonsDisabled}
+          onChange={(e) => setDerivationPath(e.target.value)}
+        />
         <button disabled={buttonsDisabled} onClick={onClickGetEthereumAddress}>
           Get Ethereum address {getAddressLoading ? "(loading)" : ""}
         </button>
-      </div>
+      </SectionContainer>
       {getAddressError ? (
-        <>
-          <p>Get address error:</p>
-          <pre>{JSON.stringify(getAddressError, null, 2)}</pre>
-        </>
+        <LabelizedJSON label="Get address error" value={getAddressError} />
       ) : (
-        <div style={{overflow: "scroll", textAlign: "start"}}>
-          <p>GetAddressDeviceAction state:</p>
-          <pre>{getAddressState ? JSON.stringify(getAddressState, null, 2) : "undefined"}</pre>
-        </div>
+        <LabelizedJSON
+          label="GetAddressDeviceAction state"
+          value={getAddressState}
+        />
       )}
-      <div style={{height: 1, width: "100%", backgroundColor: "grey", margin: "20px 0px"}} />
-      <div style={{display: "flex", flexDirection: "column", rowGap: 20, alignItems: "center"}}>
-        <form>
-          <label>
-            Derivation path:{" "}
-          </label>
-          <input disabled={buttonsDisabled} value={derivationPath} onChange={(e) => setDerivationPath(e.target.value)} />
-        </form>
-        <form>
-          <label>
-            Transaction:{" "}
-          </label>
-          <input disabled={buttonsDisabled} value={transaction} onChange={(e) => setTransaction(e.target.value)} />
-        </form>
+      <Divider />
+      <SectionContainer>
+        <h3>Ethereum Signer: Sign Transaction</h3>
+        <LabelizedInput
+          label="Derivation path"
+          value={derivationPath}
+          disabled={buttonsDisabled}
+          onChange={(e) => setDerivationPath(e.target.value)}
+        />
+        <LabelizedInput
+          label="Transaction"
+          value={rawTransactionHex}
+          disabled={buttonsDisabled}
+          onChange={(e) => setRawTransactionHex(e.target.value)}
+        />
         <button disabled={buttonsDisabled} onClick={onClickSignTransaction}>
           Sign transaction {signTransactionLoading ? "(loading)" : ""}
         </button>
-      </div>
+      </SectionContainer>
       {signTransactionError ? (
-        <>
-          <p>Sign transaction error:</p>
-          <pre>{JSON.stringify(signTransactionError, null, 2)}</pre>
-        </>
+        <LabelizedJSON
+          label="Sign transaction error"
+          value={signTransactionError}
+        />
       ) : (
-        <div style={{overflow: "scroll", textAlign: "start"}}>
-          <p>SignTransactionDeviceAction state:</p>
-          <pre>{signTransactionState ? JSON.stringify(signTransactionState, null, 2) : "undefined"}</pre>
-        </div>
+        <LabelizedJSON
+          label="SignTransactionDeviceAction state"
+          value={signTransactionState}
+        />
       )}
     </div>
   );
