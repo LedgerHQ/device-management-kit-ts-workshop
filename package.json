@@ -15,7 +15,7 @@
     "@ledgerhq/device-management-kit": "0.4.0",
     "@ledgerhq/device-signer-kit-ethereum": "1.0.0",
     "@ledgerhq/context-module": "1.0.0",
-    "ethers": "^6.13.2",
+    "ethers": "5.7.2",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
