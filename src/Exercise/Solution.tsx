@@ -18,7 +18,6 @@ import {
 import { ethers } from "ethers";
 import { useState } from "react";
 import { firstValueFrom } from "rxjs";
-import { useDeviceSessionState } from "../helpers";
 import { UI } from "../components/UI";
 import { exampleRawTransactionHex } from "./exampleRawTransactionHex";
 
@@ -26,7 +25,7 @@ export const Solution = () => {
   /**
    * Workshop TODO 1: initialize the SDK
    *
-   * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/tree/develop/packages/device-management-kit#setting-up-the-sdk
+   * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#setting-up-the-sdk
    *
    * Goal:
    * ```ts
@@ -77,9 +76,9 @@ export const Solution = () => {
        *
        * Goal: obtain a `sessionId` and call `setSessionId(sessionId)`
        *
-       * RxJS tip: use `firstValueFrom` to get the first value emitted by an observable
+       * RxJS tip: use `firstValueFrom` to get the first value emitted by an observable, converting it to a Promise (https://rxjs.dev/api/index/function/firstValueFrom)
        *
-       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/tree/develop/packages/device-management-kit#connecting-to-a-device
+       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#connecting-to-a-device
        * */
       const discoveredDevice = await firstValueFrom(sdk.startDiscovering());
       const sessionId = await sdk.connect({ deviceId: discoveredDevice.id });
@@ -90,11 +89,7 @@ export const Solution = () => {
     }
   };
 
-  /**
-   * Workshop TODO 3: instantiate Ethereum Keyring
-   *
-   * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#setting-up
-   * */
+  // NB: here we initialize the Ethereum keyring with the sessionId
   const keyringEth: KeyringEth | undefined = deviceSessionId
     ? new KeyringEthBuilder({
         sdk,
@@ -108,22 +103,23 @@ export const Solution = () => {
     setGetAddressError(undefined);
     setGetAddressState(undefined);
     /**
-     * Workshop TODO 4: implement the getAddress using the Ethereum Keyring
+     * Workshop TODO 3: implement the getAddress using the Ethereum Keyring
      *
      * goal A: call the right method on the keyringEth instance
      * goal B: subscribe to the observable returned by the method
      * goal C: update the state accordingly: setGetAddressState(getAddressDAState)
      * goal D: handle the different statuses of the DeviceActionState
-     *    - Pending:    setGetAddressIntermediateValue(getAddressDAState.intermediateValue)
      *    - Completed:  setGetAddressOutput(getAddressDAState.output)
      *    - Error:       setGetAddressError(getAddressDAState.error)
      *
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
      *
-     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-1-get-address
+     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/keyring-eth/README.md#use-case-1-get-address
      * */
-    keyringEth.getAddress(derivationPath).observable.subscribe({
-      next: (getAddressDAState) => {
+    keyringEth
+      .getAddress(derivationPath)
+      .observable.subscribe((getAddressDAState) => {
+        setGetAddressState(getAddressDAState);
         switch (getAddressDAState.status) {
           case DeviceActionStatus.Completed:
             setGetAddressOutput(getAddressDAState.output);
@@ -134,9 +130,7 @@ export const Solution = () => {
           default:
             break;
         }
-        setGetAddressState(getAddressDAState);
-      },
-    });
+      });
   };
 
   const onClickSignTransaction = async () => {
@@ -153,13 +147,12 @@ export const Solution = () => {
     }
 
     /**
-     * Workshop TODO 5 (Bonus): implement the signTransaction using the Ethereum keyring
+     * Workshop TODO 4 (Bonus): implement the signTransaction using the Ethereum keyring
      *
      * goal A: call the right method on the keyringEth instance
      * goal B: subscribe to the observable returned by the method
      * goal C: update the state accordingly: setSignTransactionState(signTransactionDAState)
      * goal D: handle the different statuses of the DeviceActionState
-     *    - Pending:    setSignTransactionIntermediateValue(signTransactionDAState.intermediateValue)
      *    - Completed:  setSignTransactionOutput(signTransactionDAState.output)
      *    - Error:      setSignTransactionError(signTransactionDAState.error)
      *
@@ -168,34 +161,21 @@ export const Solution = () => {
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
      * */
     keyringEth
-      .signTransaction(derivationPath, transaction, {
-        domain: "",
-      })
-      .observable.subscribe({
-        next: (signTransactionDAState) => {
-          console.log("signTransactionDAState", signTransactionDAState);
-          switch (signTransactionDAState.status) {
-            case DeviceActionStatus.Completed:
-              setSignTransactionOutput(signTransactionDAState.output);
-              break;
-            case DeviceActionStatus.Error:
-              setSignTransactionError(signTransactionDAState.error);
-              break;
-            default:
-              break;
-          }
-          setSignTransactionState(signTransactionDAState);
-        },
+      .signTransaction(derivationPath, transaction)
+      .observable.subscribe((signTransactionDAState) => {
+        setSignTransactionState(signTransactionDAState);
+        switch (signTransactionDAState.status) {
+          case DeviceActionStatus.Completed:
+            setSignTransactionOutput(signTransactionDAState.output);
+            break;
+          case DeviceActionStatus.Error:
+            setSignTransactionError(signTransactionDAState.error);
+            break;
+          default:
+            break;
+        }
       });
   };
-
-  const deviceSessionState = useDeviceSessionState(sdk, deviceSessionId);
-  const getAddressLoading = Boolean(
-    getAddressState && !getAddressOutput && !getAddressError
-  );
-  const signTransactionLoading = Boolean(
-    signTransactionState && !signTransactionOutput && !signTransactionError
-  );
 
   return (
     <UI
@@ -205,18 +185,15 @@ export const Solution = () => {
         onClickDiscoverDevices,
         connectionError,
         deviceSessionId,
-        deviceSessionState,
         derivationPath,
         setDerivationPath,
         onClickGetEthereumAddress,
-        getAddressLoading,
         getAddressOutput,
         getAddressError,
         getAddressState,
         rawTransactionHex,
         setRawTransactionHex,
         onClickSignTransaction,
-        signTransactionLoading,
         signTransactionOutput,
         signTransactionError,
         signTransactionState,

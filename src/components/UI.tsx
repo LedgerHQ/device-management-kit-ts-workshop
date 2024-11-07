@@ -1,6 +1,5 @@
 import {
   type DeviceSessionId,
-  type DeviceSessionState,
   DeviceActionState,
   DeviceStatus,
   DeviceSdk,
@@ -19,6 +18,7 @@ import { Divider } from "./Divider";
 import { LabelizedInput } from "./LabelizedInput";
 import { LabelizedJSON } from "./LabelizedJSON";
 import { SectionContainer } from "./SectionContainer";
+import { useDeviceSessionState } from "../helpers";
 
 type UIProps = {
   deviceSdk: DeviceSdk | undefined;
@@ -26,11 +26,9 @@ type UIProps = {
   onClickDiscoverDevices: () => void;
   connectionError: unknown;
   deviceSessionId: DeviceSessionId | undefined;
-  deviceSessionState: DeviceSessionState | undefined;
   derivationPath: string;
   setDerivationPath: (path: string) => void;
   onClickGetEthereumAddress: () => void;
-  getAddressLoading: boolean;
   getAddressOutput: GetAddressDAOutput | undefined;
   getAddressError: GetAddressDAError | Error | unknown | undefined;
   getAddressState:
@@ -43,7 +41,6 @@ type UIProps = {
   rawTransactionHex: string;
   setRawTransactionHex: (hex: string) => void;
   onClickSignTransaction: () => void;
-  signTransactionLoading: boolean;
   signTransactionOutput: SignTransactionDAOutput | undefined;
   signTransactionError: SignTransactionDAError | Error | unknown | undefined;
   signTransactionState:
@@ -61,22 +58,27 @@ export const UI: React.FC<UIProps> = ({
   onClickDiscoverDevices,
   connectionError,
   deviceSessionId,
-  deviceSessionState,
   derivationPath,
   setDerivationPath,
   onClickGetEthereumAddress,
-  getAddressLoading,
   getAddressOutput,
   getAddressError,
   getAddressState,
   rawTransactionHex,
   setRawTransactionHex,
   onClickSignTransaction,
-  signTransactionLoading,
   signTransactionOutput,
   signTransactionError,
   signTransactionState,
 }) => {
+  const deviceSessionState = useDeviceSessionState(deviceSdk, deviceSessionId);
+  const getAddressLoading = Boolean(
+    getAddressState && !getAddressOutput && !getAddressError
+  );
+  const signTransactionLoading = Boolean(
+    signTransactionState && !signTransactionOutput && !signTransactionError
+  );
+
   const buttonsDisabled =
     getAddressLoading ||
     signTransactionLoading ||
