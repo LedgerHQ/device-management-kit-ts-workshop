@@ -21,6 +21,13 @@ import { firstValueFrom } from "rxjs";
 import { UI } from "../components/UI";
 import { exampleRawTransactionHex } from "./exampleRawTransactionHex";
 
+/**
+ * Notes for the Workshop:
+ * - There is no need to import more than what is already imported.
+ * - There is normally no need to know how React works.
+ * - In case TypeScript autocompletion does not work, do cmd+shift+p to open the command palette and select "TypeScript: Restart TS server"
+ */
+
 export const Solution = () => {
   /**
    * Workshop TODO 1: initialize the SDK
