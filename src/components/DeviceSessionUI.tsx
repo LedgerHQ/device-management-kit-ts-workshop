@@ -1,5 +1,6 @@
 import {
   type DeviceSessionId,
+  DeviceSessionStateType,
   DeviceStatus,
 } from "@ledgerhq/device-management-kit";
 import { DeviceSessionState } from "@ledgerhq/device-management-kit/lib/cjs/index.js";
@@ -16,8 +17,14 @@ export const DeviceSessionUI: React.FC<{
     );
   }
 
+  const { currentApp, firmwareVersion, deviceStatus } =
+    deviceSessionState?.sessionStateType ===
+    DeviceSessionStateType.ReadyWithoutSecureChannel
+      ? deviceSessionState
+      : {};
+
   let backgroundColor = "lightgray";
-  switch (deviceSessionState?.deviceStatus) {
+  switch (deviceStatus) {
     case DeviceStatus.CONNECTED:
       backgroundColor = "lightgreen";
       break;
@@ -48,6 +55,15 @@ export const DeviceSessionUI: React.FC<{
           {deviceSessionState?.deviceStatus ?? "loading"}
         </b>
       </p>
+      {firmwareVersion ? <p>Firmware version: {firmwareVersion.os}</p> : null}
+      {currentApp ? (
+        <p>
+          Current app:{" "}
+          <b>
+            {currentApp.name}, v{currentApp.version}
+          </b>
+        </p>
+      ) : null}
     </div>
   );
 };

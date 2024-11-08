@@ -19,6 +19,8 @@ import { LabelizedInput } from "./LabelizedInput";
 import { LabelizedJSON } from "./LabelizedJSON";
 import { SectionContainer } from "./SectionContainer";
 import { useDeviceSessionState } from "../helpers";
+import { DeviceSession } from "@ledgerhq/device-management-kit/src/internal/device-session/model/DeviceSession.js";
+import { DeviceSessionStateType } from "@ledgerhq/device-management-kit/lib/cjs/index.js";
 
 type UIProps = {
   deviceSdk: DeviceSdk | undefined;
@@ -72,6 +74,7 @@ export const UI: React.FC<UIProps> = ({
   signTransactionState,
 }) => {
   const deviceSessionState = useDeviceSessionState(deviceSdk, deviceSessionId);
+
   const getAddressLoading = Boolean(
     getAddressState && !getAddressOutput && !getAddressError
   );

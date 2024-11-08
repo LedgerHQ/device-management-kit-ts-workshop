@@ -29,8 +29,15 @@ const App = () => {
           padding: 10,
           display: "flex",
           flexDirection: "column",
+          position: "sticky",
+          top: 0,
         }}
       >
+        <h3>Ledger Device Management Kit Workshop</h3>
+        <h5>
+          Goal: use the Ledger Device Management Kit to connect to a Ledger
+          device and get an Ethereum address.{"\n"}Bonus: sign a transaction.
+        </h5>
         <div
           style={{
             alignSelf: "center",
