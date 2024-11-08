@@ -77,6 +77,7 @@ export const Solution = () => {
        * Goal: obtain a `sessionId` and call `setSessionId(sessionId)`
        *
        * RxJS tip: use `firstValueFrom` to get the first value emitted by an observable, converting it to a Promise (https://rxjs.dev/api/index/function/firstValueFrom)
+       *    example: const myDiscoveredDevice = await firstValueFrom(myDiscoverDeviceObservable);
        *
        * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#connecting-to-a-device
        * */
@@ -113,6 +114,7 @@ export const Solution = () => {
      *    - Error:       setGetAddressError(getAddressDAState.error)
      *
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
+     *   example: myObservable.subscribe((value) => console.log(value));
      *
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/keyring-eth/README.md#use-case-1-get-address
      * */
@@ -157,6 +159,7 @@ export const Solution = () => {
      *    - Error:      setSignTransactionError(signTransactionDAState.error)
      *
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
+     *    example: myObservable.subscribe((value) => console.log(value));
      *
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
      * */
