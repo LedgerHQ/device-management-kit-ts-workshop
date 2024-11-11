@@ -90,6 +90,7 @@ export function Exercise() {
        *
        * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#connecting-to-a-device
        * */
+      window.alert("onClickDiscoverDevices not implemented yet.");
       // const sessionId =
       setConnectionError(undefined);
       // setSessionId(sessionId); // TODO: uncomment this line when sessionId is defined
@@ -126,6 +127,7 @@ export function Exercise() {
      *
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/keyring-eth/README.md#use-case-1-get-address
      * */
+    window.alert("onClickGetEthereumAddress not implemented yet.");
   };
 
   const onClickSignTransaction = async () => {
@@ -156,6 +158,7 @@ export function Exercise() {
      *
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
      * */
+    window.alert("onClickSignTransaction not implemented yet.");
   };
 
   return (
