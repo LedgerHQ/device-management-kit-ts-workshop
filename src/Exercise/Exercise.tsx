@@ -92,8 +92,8 @@ export function Exercise() {
        * */
       window.alert("onClickDiscoverDevices not implemented yet.");
       // const sessionId =
-      setConnectionError(undefined);
       // setSessionId(sessionId); // TODO: uncomment this line when sessionId is defined
+      setConnectionError(undefined);
     } catch (e) {
       setConnectionError(e);
     }
