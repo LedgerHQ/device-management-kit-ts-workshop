@@ -1,21 +1,25 @@
 import {
   DeviceActionState,
   DeviceActionStatus,
-  DeviceSdk,
-  DeviceSdkBuilder,
+  DeviceManagementKit,
+  DeviceManagementKitBuilder,
+  hexaStringToBuffer,
   type DeviceSessionId,
 } from "@ledgerhq/device-management-kit";
+import {
+  webHidIdentifier,
+  webHidTransportFactory,
+} from "@ledgerhq/device-transport-kit-web-hid";
 import {
   GetAddressDAError,
   GetAddressDAIntermediateValue,
   GetAddressDAOutput,
-  KeyringEth,
-  KeyringEthBuilder,
+  SignerEth,
+  SignerEthBuilder,
   SignTransactionDAError,
   SignTransactionDAIntermediateValue,
   SignTransactionDAOutput,
 } from "@ledgerhq/device-signer-kit-ethereum";
-import { ethers } from "ethers";
 import { useState } from "react";
 import { firstValueFrom } from "rxjs";
 import { UI } from "../components/UI";
@@ -39,7 +43,11 @@ export const Solution = () => {
    * const [sdk] = useState<DeviceSdk>(mySdkInstance);`
    * ```
    * */
-  const [sdk] = useState<DeviceSdk>(new DeviceSdkBuilder().build());
+  const [sdk] = useState<DeviceManagementKit>(
+    new DeviceManagementKitBuilder()
+      .addTransport(webHidTransportFactory)
+      .build()
+  );
 
   const [deviceSessionId, setSessionId] = useState<DeviceSessionId>();
   const [connectionError, setConnectionError] = useState<unknown>();
@@ -86,10 +94,12 @@ export const Solution = () => {
        * RxJS tip: use `firstValueFrom` to get the first value emitted by an observable, converting it to a Promise (https://rxjs.dev/api/index/function/firstValueFrom)
        *    example: const myDiscoveredDevice = await firstValueFrom(myDiscoverDeviceObservable);
        *
-       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#connecting-to-a-device
+       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.6.0/packages/core/README.md#connecting-to-a-device
        * */
-      const discoveredDevice = await firstValueFrom(sdk.startDiscovering());
-      const sessionId = await sdk.connect({ deviceId: discoveredDevice.id });
+      const discoveredDevice = await firstValueFrom(
+        sdk.startDiscovering({ transport: webHidIdentifier })
+      );
+      const sessionId = await sdk.connect({ device: discoveredDevice });
       setConnectionError(undefined);
       setSessionId(sessionId);
     } catch (e) {
@@ -98,9 +108,9 @@ export const Solution = () => {
   };
 
   // NB: here we initialize the Ethereum keyring with the sessionId
-  const keyringEth: KeyringEth | undefined = deviceSessionId
-    ? new KeyringEthBuilder({
-        sdk,
+  const keyringEth: SignerEth | undefined = deviceSessionId
+    ? new SignerEthBuilder({
+        dmk: sdk,
         sessionId: deviceSessionId,
       }).build()
     : undefined;
@@ -147,44 +157,44 @@ export const Solution = () => {
     setSignTransactionOutput(undefined);
     setSignTransactionError(undefined);
     setSignTransactionState(undefined);
-    let transaction: ethers.Transaction;
-    try {
-      transaction = ethers.utils.parseTransaction(rawTransactionHex);
-    } catch (e) {
-      setSignTransactionError(e);
-      return;
+    const transaction: Uint8Array | null =
+      hexaStringToBuffer(rawTransactionHex);
+    if (transaction == null) {
+      setSignTransactionError(
+        new Error("Cannot convert rawTransactionHex to Uint8Array")
+      );
+    } else {
+      /**
+       * Workshop TODO 4 (Bonus): implement the signTransaction using the Ethereum keyring
+       *
+       * goal A: call the right method on the keyringEth instance
+       * goal B: subscribe to the observable returned by the method
+       * goal C: update the state accordingly: setSignTransactionState(signTransactionDAState)
+       * goal D: handle the different statuses of the DeviceActionState
+       *    - Completed:  setSignTransactionOutput(signTransactionDAState.output)
+       *    - Error:      setSignTransactionError(signTransactionDAState.error)
+       *
+       * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
+       *    example: myObservable.subscribe((value) => console.log(value));
+       *
+       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
+       * */
+      keyringEth
+        .signTransaction(derivationPath, transaction)
+        .observable.subscribe((signTransactionDAState) => {
+          setSignTransactionState(signTransactionDAState);
+          switch (signTransactionDAState.status) {
+            case DeviceActionStatus.Completed:
+              setSignTransactionOutput(signTransactionDAState.output);
+              break;
+            case DeviceActionStatus.Error:
+              setSignTransactionError(signTransactionDAState.error);
+              break;
+            default:
+              break;
+          }
+        });
     }
-
-    /**
-     * Workshop TODO 4 (Bonus): implement the signTransaction using the Ethereum keyring
-     *
-     * goal A: call the right method on the keyringEth instance
-     * goal B: subscribe to the observable returned by the method
-     * goal C: update the state accordingly: setSignTransactionState(signTransactionDAState)
-     * goal D: handle the different statuses of the DeviceActionState
-     *    - Completed:  setSignTransactionOutput(signTransactionDAState.output)
-     *    - Error:      setSignTransactionError(signTransactionDAState.error)
-     *
-     * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
-     *    example: myObservable.subscribe((value) => console.log(value));
-     *
-     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
-     * */
-    keyringEth
-      .signTransaction(derivationPath, transaction)
-      .observable.subscribe((signTransactionDAState) => {
-        setSignTransactionState(signTransactionDAState);
-        switch (signTransactionDAState.status) {
-          case DeviceActionStatus.Completed:
-            setSignTransactionOutput(signTransactionDAState.output);
-            break;
-          case DeviceActionStatus.Error:
-            setSignTransactionError(signTransactionDAState.error);
-            break;
-          default:
-            break;
-        }
-      });
   };
 
   return (

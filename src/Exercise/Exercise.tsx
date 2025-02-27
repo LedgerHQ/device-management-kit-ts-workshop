@@ -4,19 +4,19 @@ import {
   DeviceActionStatus,
   DeviceSdk,
   DeviceSdkBuilder,
+  hexaStringToBuffer,
   type DeviceSessionId,
 } from "@ledgerhq/device-management-kit";
 import {
   GetAddressDAError,
   GetAddressDAIntermediateValue,
   GetAddressDAOutput,
-  KeyringEth,
-  KeyringEthBuilder,
+  SignerEth,
+  SignerEthBuilder,
   SignTransactionDAError,
   SignTransactionDAIntermediateValue,
   SignTransactionDAOutput,
 } from "@ledgerhq/device-signer-kit-ethereum";
-import { ethers } from "ethers";
 import { useState } from "react";
 import { firstValueFrom } from "rxjs";
 import { useDeviceSessionState } from "../helpers";
@@ -100,9 +100,9 @@ export function Exercise() {
   };
 
   // NB: here we initialize the Ethereum keyring with the sessionId
-  const keyringEth: KeyringEth | undefined = deviceSessionId
-    ? new KeyringEthBuilder({
-        sdk,
+  const keyringEth: SignerEth | undefined = deviceSessionId
+    ? new SignerEthBuilder({
+        dmk: sdk,
         sessionId: deviceSessionId,
       }).build()
     : undefined;
@@ -135,11 +135,12 @@ export function Exercise() {
     setSignTransactionOutput(undefined);
     setSignTransactionError(undefined);
     setSignTransactionState(undefined);
-    let transaction: ethers.Transaction;
-    try {
-      transaction = ethers.utils.parseTransaction(rawTransactionHex);
-    } catch (e) {
-      setSignTransactionError(e);
+    const transaction: Uint8Array | null =
+      hexaStringToBuffer(rawTransactionHex);
+    if (transaction == null) {
+      setSignTransactionError(
+        new Error("Cannot convert rawTransactionHex to Uint8Array")
+      );
       return;
     }
 
