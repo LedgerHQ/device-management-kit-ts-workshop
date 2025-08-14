@@ -12,10 +12,10 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@ledgerhq/device-management-kit": "0.6.1",
-    "@ledgerhq/device-signer-kit-ethereum": "1.2.0",
-    "@ledgerhq/context-module": "1.2.0",
-    "@ledgerhq/device-transport-kit-web-hid": "1.0.1",
+    "@ledgerhq/device-management-kit": "0.0.0-io-revamp-20250711135456",
+    "@ledgerhq/device-signer-kit-ethereum": "0.0.0-io-revamp-20250711135456",
+    "@ledgerhq/context-module": "0.0.0-io-revamp-20250716091938",
+    "@ledgerhq/device-transport-kit-web-hid": "0.0.0-io-revamp-20250711135456",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
