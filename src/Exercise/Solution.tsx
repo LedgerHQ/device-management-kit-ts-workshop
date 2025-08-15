@@ -43,7 +43,7 @@ export const Solution = () => {
    * const [sdk] = useState<DeviceSdk>(mySdkInstance);`
    * ```
    * */
-  const [sdk] = useState<DeviceManagementKit>(
+  const [dmk] = useState<DeviceManagementKit>(
     new DeviceManagementKitBuilder()
       .addTransport(webHidTransportFactory)
       .build()
@@ -97,9 +97,9 @@ export const Solution = () => {
        * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.6.0/packages/core/README.md#connecting-to-a-device
        * */
       const discoveredDevice = await firstValueFrom(
-        sdk.startDiscovering({ transport: webHidIdentifier })
+        dmk.startDiscovering({ transport: webHidIdentifier })
       );
-      const sessionId = await sdk.connect({ device: discoveredDevice });
+      const sessionId = await dmk.connect({ device: discoveredDevice });
       setConnectionError(undefined);
       setSessionId(sessionId);
     } catch (e) {
@@ -108,9 +108,9 @@ export const Solution = () => {
   };
 
   // NB: here we initialize the Ethereum keyring with the sessionId
-  const keyringEth: SignerEth | undefined = deviceSessionId
+  const signerEth: SignerEth | undefined = deviceSessionId
     ? new SignerEthBuilder({
-        dmk: sdk,
+        dmk,
         sessionId: deviceSessionId,
         originToken:
           "1e55ba3959f4543af24809d9066a2120bd2ac9246e626e26a1ff77eb109ca0e5",
@@ -118,7 +118,7 @@ export const Solution = () => {
     : undefined;
 
   const onClickGetEthereumAddress = async () => {
-    if (!keyringEth || !derivationPath) return;
+    if (!signerEth || !derivationPath) return;
     setGetAddressOutput(undefined);
     setGetAddressError(undefined);
     setGetAddressState(undefined);
@@ -137,7 +137,7 @@ export const Solution = () => {
      *
      * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/keyring-eth/README.md#use-case-1-get-address
      * */
-    keyringEth
+    signerEth
       .getAddress(derivationPath)
       .observable.subscribe((getAddressDAState) => {
         setGetAddressState(getAddressDAState);
@@ -155,7 +155,7 @@ export const Solution = () => {
   };
 
   const onClickSignTransaction = async () => {
-    if (!keyringEth || !derivationPath || !rawTransactionHex) return;
+    if (!signerEth || !derivationPath || !rawTransactionHex) return;
     setSignTransactionOutput(undefined);
     setSignTransactionError(undefined);
     setSignTransactionState(undefined);
@@ -181,7 +181,7 @@ export const Solution = () => {
        *
        * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
        * */
-      keyringEth
+      signerEth
         .signTransaction(derivationPath, transaction)
         .observable.subscribe((signTransactionDAState) => {
           setSignTransactionState(signTransactionDAState);
@@ -202,8 +202,8 @@ export const Solution = () => {
   return (
     <UI
       {...{
-        deviceSdk: sdk,
-        ethereumSigner: keyringEth,
+        deviceManagementKit: dmk,
+        ethereumSigner: signerEth,
         onClickDiscoverDevices,
         connectionError,
         deviceSessionId,

@@ -2,7 +2,7 @@ import {
   type DeviceSessionId,
   DeviceActionState,
   DeviceStatus,
-  DeviceSdk,
+  DeviceManagementKit,
 } from "@ledgerhq/device-management-kit";
 import {
   GetAddressDAOutput,
@@ -11,7 +11,7 @@ import {
   SignTransactionDAOutput,
   SignTransactionDAError,
   SignTransactionDAIntermediateValue,
-  KeyringEth,
+  SignerEth,
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { DeviceSessionUI } from "./DeviceSessionUI";
 import { Divider } from "./Divider";
@@ -19,12 +19,10 @@ import { LabelizedInput } from "./LabelizedInput";
 import { LabelizedJSON } from "./LabelizedJSON";
 import { SectionContainer } from "./SectionContainer";
 import { useDeviceSessionState } from "../helpers";
-import { DeviceSession } from "@ledgerhq/device-management-kit/src/internal/device-session/model/DeviceSession.js";
-import { DeviceSessionStateType } from "@ledgerhq/device-management-kit/lib/cjs/index.js";
 
 type UIProps = {
-  deviceSdk: DeviceSdk | undefined;
-  ethereumSigner: KeyringEth | undefined;
+  deviceManagementKit: DeviceManagementKit | undefined;
+  ethereumSigner: SignerEth | undefined;
   onClickDiscoverDevices: () => void;
   connectionError: unknown;
   deviceSessionId: DeviceSessionId | undefined;
@@ -55,7 +53,7 @@ type UIProps = {
 };
 
 export const UI: React.FC<UIProps> = ({
-  deviceSdk,
+  deviceManagementKit,
   ethereumSigner,
   onClickDiscoverDevices,
   connectionError,
@@ -73,7 +71,10 @@ export const UI: React.FC<UIProps> = ({
   signTransactionError,
   signTransactionState,
 }) => {
-  const deviceSessionState = useDeviceSessionState(deviceSdk, deviceSessionId);
+  const deviceSessionState = useDeviceSessionState(
+    deviceManagementKit,
+    deviceSessionId
+  );
 
   const getAddressLoading = Boolean(
     getAddressState && !getAddressOutput && !getAddressError
@@ -90,7 +91,7 @@ export const UI: React.FC<UIProps> = ({
 
   return (
     <div className="card">
-      {deviceSdk ? (
+      {deviceManagementKit ? (
         <>
           <SectionContainer>
             <h3>Device Management Kit: Device Connection</h3>

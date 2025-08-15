@@ -1,12 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   DeviceActionState,
   DeviceActionStatus,
-  DeviceSdk,
-  DeviceSdkBuilder,
+  DeviceManagementKit,
+  DeviceManagementKitBuilder,
   hexaStringToBuffer,
   type DeviceSessionId,
 } from "@ledgerhq/device-management-kit";
+import {
+  webHidIdentifier,
+  webHidTransportFactory,
+} from "@ledgerhq/device-transport-kit-web-hid";
 import {
   GetAddressDAError,
   GetAddressDAIntermediateValue,
@@ -19,7 +22,6 @@ import {
 } from "@ledgerhq/device-signer-kit-ethereum";
 import { useState } from "react";
 import { firstValueFrom } from "rxjs";
-import { useDeviceSessionState } from "../helpers";
 import { UI } from "../components/UI";
 import { exampleRawTransactionHex } from "./exampleRawTransactionHex";
 
@@ -41,7 +43,8 @@ export function Exercise() {
    * const [sdk] = useState<DeviceSdk>(mySdkInstance);`
    * ```
    * */
-  const [sdk] = useState<DeviceSdk>(/* TODO: pass the SDK instance here */);
+  const [dmk] =
+    useState<DeviceManagementKit>(/* TODO: pass the SDK instance here */);
 
   const [deviceSessionId, setSessionId] = useState<DeviceSessionId>();
   const [connectionError, setConnectionError] = useState<unknown>();
@@ -100,15 +103,15 @@ export function Exercise() {
   };
 
   // NB: here we initialize the Ethereum keyring with the sessionId
-  const keyringEth: SignerEth | undefined = deviceSessionId
+  const signerEth: SignerEth | undefined = deviceSessionId
     ? new SignerEthBuilder({
-        dmk: sdk,
+        dmk,
         sessionId: deviceSessionId,
       }).build()
     : undefined;
 
   const onClickGetEthereumAddress = async () => {
-    if (!keyringEth || !derivationPath) return;
+    if (!signerEth || !derivationPath) return;
     setGetAddressOutput(undefined);
     setGetAddressError(undefined);
     setGetAddressState(undefined);
@@ -131,7 +134,7 @@ export function Exercise() {
   };
 
   const onClickSignTransaction = async () => {
-    if (!keyringEth || !derivationPath || !rawTransactionHex) return;
+    if (!signerEth || !derivationPath || !rawTransactionHex) return;
     setSignTransactionOutput(undefined);
     setSignTransactionError(undefined);
     setSignTransactionState(undefined);
@@ -165,8 +168,8 @@ export function Exercise() {
   return (
     <UI
       {...{
-        deviceSdk: sdk,
-        ethereumSigner: keyringEth,
+        deviceManagementKit: dmk,
+        ethereumSigner: signerEth,
         onClickDiscoverDevices,
         connectionError,
         deviceSessionId,
