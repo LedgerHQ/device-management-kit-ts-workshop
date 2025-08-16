@@ -5,6 +5,8 @@ import {
   DeviceManagementKitBuilder,
   hexaStringToBuffer,
   type DeviceSessionId,
+  InstallAppDeviceAction,
+  UninstallAppDeviceAction,
 } from "@ledgerhq/device-management-kit";
 import {
   webHidIdentifier,
@@ -55,6 +57,21 @@ export const Solution = () => {
   const [rawTransactionHex, setRawTransactionHex] = useState(
     exampleRawTransactionHex
   );
+
+  // New state for install app device action
+  const [appName, setAppName] = useState("");
+  const [installAppOutput, setInstallAppOutput] = useState<unknown>();
+  const [installAppError, setInstallAppError] = useState<Error | unknown>();
+  const [installAppState, setInstallAppState] =
+    useState<DeviceActionState<unknown, unknown, unknown>>();
+
+  // New state for uninstall app device action
+  const [uninstallAppName, setUninstallAppName] = useState("");
+  const [uninstallAppOutput, setUninstallAppOutput] = useState<unknown>();
+  const [uninstallAppError, setUninstallAppError] = useState<Error | unknown>();
+  const [uninstallAppState, setUninstallAppState] =
+    useState<DeviceActionState<unknown, unknown, unknown>>();
+
   const [getAddressOutput, setGetAddressOutput] =
     useState<GetAddressDAOutput>();
   const [getAddressError, setGetAddressError] = useState<
@@ -199,6 +216,78 @@ export const Solution = () => {
     }
   };
 
+  const onClickInstallApp = async () => {
+    if (!deviceSessionId || !appName) return;
+    setInstallAppOutput(undefined);
+    setInstallAppError(undefined);
+    setInstallAppState(undefined);
+
+    try {
+      // Create and execute the install app device action
+      const installAppAction = new InstallAppDeviceAction({
+        input: { appName },
+      });
+      const installResult = dmk.executeDeviceAction({
+        sessionId: deviceSessionId,
+        deviceAction: installAppAction,
+      });
+
+      installResult.observable.subscribe(
+        (installAppDAState: DeviceActionState<unknown, unknown, unknown>) => {
+          setInstallAppState(installAppDAState);
+          switch (installAppDAState.status) {
+            case DeviceActionStatus.Completed:
+              setInstallAppOutput(installAppDAState.output);
+              break;
+            case DeviceActionStatus.Error:
+              setInstallAppError(installAppDAState.error);
+              break;
+            default:
+              break;
+          }
+        }
+      );
+    } catch (e) {
+      setInstallAppError(e);
+    }
+  };
+
+  const onClickUninstallApp = async () => {
+    if (!deviceSessionId || !uninstallAppName) return;
+    setUninstallAppOutput(undefined);
+    setUninstallAppError(undefined);
+    setUninstallAppState(undefined);
+
+    try {
+      // Create and execute the uninstall app device action
+      const uninstallAppAction = new UninstallAppDeviceAction({
+        input: { appName: uninstallAppName },
+      });
+      const uninstallResult = dmk.executeDeviceAction({
+        sessionId: deviceSessionId,
+        deviceAction: uninstallAppAction,
+      });
+
+      uninstallResult.observable.subscribe(
+        (uninstallAppDAState: DeviceActionState<unknown, unknown, unknown>) => {
+          setUninstallAppState(uninstallAppDAState);
+          switch (uninstallAppDAState.status) {
+            case DeviceActionStatus.Completed:
+              setUninstallAppOutput(uninstallAppDAState.output);
+              break;
+            case DeviceActionStatus.Error:
+              setUninstallAppError(uninstallAppDAState.error);
+              break;
+            default:
+              break;
+          }
+        }
+      );
+    } catch (e) {
+      setUninstallAppError(e);
+    }
+  };
+
   return (
     <UI
       {...{
@@ -219,6 +308,20 @@ export const Solution = () => {
         signTransactionOutput,
         signTransactionError,
         signTransactionState,
+        // New props for install app
+        appName,
+        setAppName,
+        onClickInstallApp,
+        installAppOutput,
+        installAppError,
+        installAppState,
+        // New props for uninstall app
+        uninstallAppName,
+        setUninstallAppName,
+        onClickUninstallApp,
+        uninstallAppOutput,
+        uninstallAppError,
+        uninstallAppState,
       }}
     />
   );
