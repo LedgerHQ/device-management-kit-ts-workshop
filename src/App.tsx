@@ -59,17 +59,13 @@ const App = () => {
         </div>
         {showSolution ? (
           <>
-            <p>
-              The code for this implementation is in{" "}
-              <pre>src/Exercise/Solution.tsx</pre>
-            </p>
+            <p>The code for this implementation is in </p>
+            <pre>src/Exercise/Solution.tsx</pre>
           </>
         ) : (
           <>
-            <p>
-              The code for this implementation is in{" "}
-              <pre>src/Exercise/Exercise.tsx</pre>
-            </p>
+            <p>The code for this implementation is in </p>
+            <pre>src/Exercise/Exercise.tsx</pre>
           </>
         )}
       </div>
