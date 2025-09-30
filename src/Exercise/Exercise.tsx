@@ -121,6 +121,7 @@ export function Exercise() {
     ? new SignerEthBuilder({
         dmk,
         sessionId: deviceSessionId,
+        originToken: "some-token",
       }).build()
     : undefined;
 
