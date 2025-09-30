@@ -105,7 +105,7 @@ export function Exercise() {
        * RxJS tip: use `firstValueFrom` to get the first value emitted by an observable, converting it to a Promise (https://rxjs.dev/api/index/function/firstValueFrom)
        *    example: const myDiscoveredDevice = await firstValueFrom(myDiscoverDeviceObservable);
        *
-       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/core/README.md#connecting-to-a-device
+       * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/device-management-kit/README.md#connecting-to-a-device
        * */
       window.alert("onClickDiscoverDevices not implemented yet.");
       // const sessionId =
@@ -143,7 +143,7 @@ export function Exercise() {
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
      *   example: myObservable.subscribe((value) => console.log(value));
      *
-     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/signer-eth/README.md#use-case-1-get-address
+     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/tree/develop/packages/signer/signer-eth/README.md#use-case-1-get-address
      * */
     window.alert("onClickGetEthereumAddress not implemented yet.");
   };
@@ -175,7 +175,7 @@ export function Exercise() {
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
      *    example: myObservable.subscribe((value) => console.log(value));
      *
-     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
+     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/tree/develop/packages/signer/signer-eth/README.md#use-case-2-sign-transaction
      * */
     window.alert("onClickSignTransaction not implemented yet.");
   };
