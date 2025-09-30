@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import {
-  DeviceSdk,
+  DeviceManagementKit,
   type DeviceSessionId,
   type DeviceSessionState,
 } from "@ledgerhq/device-management-kit";
 
 export function useDeviceSessionState(
-  sdk: DeviceSdk | undefined,
+  sdk: DeviceManagementKit | undefined,
   deviceSessionId: DeviceSessionId | undefined
 ): DeviceSessionState | undefined {
   const [deviceSessionState, setDeviceSessionState] =

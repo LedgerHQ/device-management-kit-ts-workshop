@@ -3,7 +3,7 @@ import {
   DeviceSessionStateType,
   DeviceStatus,
 } from "@ledgerhq/device-management-kit";
-import { DeviceSessionState } from "@ledgerhq/device-management-kit/lib/cjs/index.js";
+import { DeviceSessionState } from "@ledgerhq/device-management-kit";
 
 export const DeviceSessionUI: React.FC<{
   deviceSessionId: DeviceSessionId | undefined;
