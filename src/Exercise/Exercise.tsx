@@ -116,7 +116,7 @@ export function Exercise() {
     }
   };
 
-  // NB: here we initialize the Ethereum keyring with the sessionId
+  // NB: here we initialize the Ethereum signer with the sessionId
   const signerEth: SignerEth | undefined = deviceSessionId
     ? new SignerEthBuilder({
         dmk,
@@ -131,9 +131,9 @@ export function Exercise() {
     setGetAddressError(undefined);
     setGetAddressState(undefined);
     /**
-     * Workshop TODO 3: implement the getAddress using the Ethereum Keyring
+     * Workshop TODO 3: implement the getAddress using the Ethereum Signer
      *
-     * goal A: call the right method on the keyringEth instance
+     * goal A: call the right method on the signerEth instance
      * goal B: subscribe to the observable returned by the method
      * goal C: update the state accordingly: setGetAddressState(getAddressDAState)
      * goal D: handle the different statuses of the DeviceActionState
@@ -143,7 +143,7 @@ export function Exercise() {
      * RxJS tip: call `subscribe` on an observable to start listening to its events with a callback
      *   example: myObservable.subscribe((value) => console.log(value));
      *
-     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/keyring-eth/README.md#use-case-1-get-address
+     * cf. doc: https://github.com/LedgerHQ/device-sdk-ts/blob/%40ledgerhq/device-management-kit%400.4.0/packages/signer/signer-eth/README.md#use-case-1-get-address
      * */
     window.alert("onClickGetEthereumAddress not implemented yet.");
   };
@@ -163,9 +163,9 @@ export function Exercise() {
     }
 
     /**
-     * Workshop TODO 4 (Bonus): implement the signTransaction using the Ethereum keyring
+     * Workshop TODO 4 (Bonus): implement the signTransaction using the Ethereum signer
      *
-     * goal A: call the right method on the keyringEth instance
+     * goal A: call the right method on the signerEth instance
      * goal B: subscribe to the observable returned by the method
      * goal C: update the state accordingly: setSignTransactionState(signTransactionDAState)
      * goal D: handle the different statuses of the DeviceActionState

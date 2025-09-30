@@ -6,19 +6,19 @@ import {
 } from "@ledgerhq/device-management-kit";
 
 export function useDeviceSessionState(
-  sdk: DeviceManagementKit | undefined,
+  dmk: DeviceManagementKit | undefined,
   deviceSessionId: DeviceSessionId | undefined
 ): DeviceSessionState | undefined {
   const [deviceSessionState, setDeviceSessionState] =
     useState<DeviceSessionState>();
   useEffect(() => {
-    if (!deviceSessionId || !sdk) {
+    if (!deviceSessionId || !dmk) {
       setDeviceSessionState(undefined);
       return;
     }
-    sdk
+    dmk
       .getDeviceSessionState({ sessionId: deviceSessionId })
       .subscribe(setDeviceSessionState);
-  }, [deviceSessionId, sdk]);
+  }, [deviceSessionId, dmk]);
   return deviceSessionState;
 }
