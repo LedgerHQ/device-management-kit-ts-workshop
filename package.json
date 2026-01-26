@@ -3,6 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "overrides": {
+    "@types/estree": "1.0.6",
+    "acorn": "8.14.0",
+    "esbuild": "0.21.5",
+    "nanoid": "3.3.7",
+    "picocolors": "1.1.1",
+    "postcss": "8.4.47",
+    "rollup": "4.56.0",
+    "source-map-js": "1.2.1"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -12,10 +22,10 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@ledgerhq/device-management-kit": "0.9.0",
-    "@ledgerhq/device-signer-kit-ethereum": "1.7.0",
-    "@ledgerhq/context-module": "1.7.0",
-    "@ledgerhq/device-transport-kit-web-hid": "1.2.0",
+    "@ledgerhq/device-management-kit": "1.0.1",
+    "@ledgerhq/device-signer-kit-ethereum": "1.10.0",
+    "@ledgerhq/context-module": "1.13.0",
+    "@ledgerhq/device-transport-kit-web-hid": "1.2.3",
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
