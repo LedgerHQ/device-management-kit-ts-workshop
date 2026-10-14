@@ -2,7 +2,7 @@
 
 Material for the Ledger workshop at the AI & Fintech XRPL Hackathon (New York, Oct 24–25, 2026).
 
-- **Slides:** https://claude.ai/artifact/9PQVratNgFhosq3rQHqAxX
+- **Slides:** [`slides.pdf`](slides.pdf) ([online version](https://claude.ai/artifact/9PQVratNgFhosq3rQHqAxX))
 - **Demo app:** [`app/`](app/). A React app that connects a Ledger with the Device Management Kit (DMK), gets an XRP address, then signs and submits a payment on the XRPL testnet.
 - **No device? Use Speculos:** [`speculos/`](speculos/). The Ledger device emulator, with the XRP app already built for every Ledger model.
 
