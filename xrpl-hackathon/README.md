@@ -65,7 +65,7 @@ Things to know:
 The same signer code works in Node.js. Change the transport:
 
 - Real device over USB: `nodeHidTransportFactory` from `@ledgerhq/device-transport-kit-node-hid`.
-- Emulator: `speculosTransportFactory("http://localhost:5000")` from `@ledgerhq/device-transport-kit-speculos`.
+- Emulator: `speculosTransportFactory("http://127.0.0.1:5000")` from `@ledgerhq/device-transport-kit-speculos`.
 
 Run TypeScript with [`tsx`](https://tsx.is) or a bundler.
 

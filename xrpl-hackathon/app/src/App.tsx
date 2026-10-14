@@ -44,7 +44,7 @@ const speculosModels: { id: DeviceModelId; label: string }[] = [
 export default function App() {
   const [mode, setMode] = useState<Mode>("solution");
   const [transport, setTransport] = useState<TransportChoice>("speculos");
-  const [speculosUrl, setSpeculosUrl] = useState("http://localhost:5000");
+  const [speculosUrl, setSpeculosUrl] = useState("http://127.0.0.1:5000");
 
   return (
     <>

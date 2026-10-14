@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
  * - Touch models (Stax, Flex, Nano Gen5): click to tap. Keep the mouse down
  *   to "hold to sign".
  * - Button models (Nano X, Nano S Plus): use the 3 buttons under the screen.
- * Speculos's own page (localhost:5000) has only the buttons.
+ * Speculos's own page (127.0.0.1:5000) has only the buttons.
  */
 export function SpeculosScreen({ url }: { url: string }) {
   const base = url.replace(/\/+$/, "");
