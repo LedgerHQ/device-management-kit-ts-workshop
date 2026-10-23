@@ -81,9 +81,6 @@ export default function App() {
         {transport === "speculos" && (
           <aside className="screen">
             <h2>Speculos screen</h2>
-            <p className="hint">
-              Click to tap. Keep the mouse down to hold.
-            </p>
             <SpeculosScreen url={speculosUrl} />
           </aside>
         )}
