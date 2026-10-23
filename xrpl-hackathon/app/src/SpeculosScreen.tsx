@@ -6,10 +6,14 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
  *   to "hold to sign".
  * - Button models (Nano X, Nano S Plus): use the 3 buttons under the screen.
  * Speculos's own page (127.0.0.1:5000) has only the buttons.
+ *
+ * Speculos doesn't say which model it runs, so the screen's shape tells:
+ * button models have a landscape screen (128×64), touch models a portrait one.
  */
 export function SpeculosScreen({ url }: { url: string }) {
   const base = url.replace(/\/+$/, "");
   const [src, setSrc] = useState<string>();
+  const [hasButtons, setHasButtons] = useState(false);
   const pressed = useRef<{ x: number; y: number } | undefined>(undefined);
 
   // Speculos sends an event each time the screen changes: reload the screenshot.
@@ -50,6 +54,13 @@ export function SpeculosScreen({ url }: { url: string }) {
 
   return (
     <div className="speculos">
+      {src && (
+        <p className="hint">
+          {hasButtons
+            ? "Use the buttons under the screen."
+            : "Click to tap. Keep the mouse down to hold."}
+        </p>
+      )}
       {src ? (
         <img
           src={src}
@@ -58,6 +69,9 @@ export function SpeculosScreen({ url }: { url: string }) {
           onPointerDown={onPointerDown}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
+          onLoad={(e) =>
+            setHasButtons(e.currentTarget.naturalWidth > e.currentTarget.naturalHeight)
+          }
           onError={() => setSrc(undefined)}
         />
       ) : (
@@ -66,11 +80,13 @@ export function SpeculosScreen({ url }: { url: string }) {
           <code>./run-speculos.sh</code>.
         </p>
       )}
-      <div className="row center">
-        <button onClick={() => button("left")}>◀ Left</button>
-        <button onClick={() => button("both")}>Both</button>
-        <button onClick={() => button("right")}>Right ▶</button>
-      </div>
+      {src && hasButtons && (
+        <div className="row center">
+          <button onClick={() => button("left")}>◀ Left</button>
+          <button onClick={() => button("both")}>Both</button>
+          <button onClick={() => button("right")}>Right ▶</button>
+        </div>
+      )}
     </div>
   );
 }
